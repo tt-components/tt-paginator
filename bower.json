@@ -1,6 +1,6 @@
 {
   "name": "tt-paginator",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "keywords": [
     "seed",
     "polymer",
@@ -8,9 +8,15 @@
   ],
   "main": "tt-paginator.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^0.5.1"
+    "polymer": "Polymer/polymer#^0.5.4",
+    "core-elements": "Polymer/core-elements#^0.5.4",
+    "bootstrap": "^3.2.0"
   },
   "devDependencies": {
-    "web-component-tester": "Polymer/web-component-tester#^2.0.0"
-  }
+    "webcomponentsjs": "Polymer/webcomponentsjs#^0.5.4",
+    "web-component-tester": "Polymer/web-component-tester#^2.2.1"
+  }, 
+  "ignoredDependencies": [
+    "jquery"
+  ]
 }

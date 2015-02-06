@@ -1,79 +1,262 @@
 <link rel="import" href="../polymer/polymer.html">
 
+<link rel="import" href="../core-a11y-keys/core-a11y-keys.html">
+
+<!--<link rel="import" href="../paper-slider/paper-slider.html">-->
+
+<!--<link rel="import" href="../paper-dropdown/paper-dropdown-menu.html">-->
+<!--<link rel="import" href="..//paper-item/paper-item.html">-->
+
+
 <!--
 Element providing solution to no problem in particular.
 
 ##### Example
 
-    <tt-paginator></tt-paginator>
+
+    <tt-pagination range="{{rangesize}}"
+        from="{{searchOpt.from}}" size="{{searchOpt.size}}"
+        total="{{data.hits.total}}"
+        on-change="{{pagingHandler}}">
+    </tt-pagination>
 
 @element tt-paginator
 @blurb Element providing solution to no problem in particular.
 @status alpha
 @homepage http://tt-components.github.io/tt-paginator
 -->
-<polymer-element name="tt-paginator" attributes="author fancy">
+<polymer-element name="tt-paginator" attributes="from size total range">
+
   <template>
-    <link rel="stylesheet" href="tt-paginator.css">
-    <h1>Hello from tt-paginator</h1>
-    <content></content>
+    <link rel="stylesheet" href="../bootstrap/dist/css/bootstrap.css" shim-shadowdom>
+    <style>
+      :host {
+        display: block;
+      }
+
+      .pagination > .active > a {
+        z-index: 0;
+      }
+    </style>
+
+    <!-- Dev Template -->
+    <!--<template if="{{true}}">-->
+    <!--<style>-->
+    <!--paper-slider {-->
+    <!--width: 100%;-->
+    <!--}-->
+    <!--</style>-->
+    <!--<div center horizontal layout>-->
+    <!--<div>Range</div>-->
+    <!--<paper-slider value="{{range}}" min="-1" max="50" editable></paper-slider>-->
+    <!--</div>-->
+    <!--<div center horizontal layout>-->
+    <!--<div>Size</div>-->
+    <!--<paper-slider value="{{size}}" max="100" editable></paper-slider>-->
+    <!--</div>-->
+
+    <!--<div>from : {{from}}</div>-->
+    <!--<div>size : {{size}}</div>-->
+    <!--<div>total : {{total}}</div>-->
+    <!--<div>currentpage : {{currentpage}}</div>-->
+    <!--<div>lastpage : {{lastpage}}</div>-->
+    <!--</template>-->
+
+    <template if="{{lastpage > 1}}">
+      <ul class="pagination pagination-lg">
+        <li class="{{currentpage <= 1 ? 'disabled' : '' }}"
+            on-tap="{{selectPage}}" pageid="first">
+          <a>&vartriangleleft;</a>
+        </li>
+        <li class="{{currentpage <= 1 ? 'disabled' : '' }}"
+            on-tap="{{selectPage}}" pageid="previous">
+          <a>&laquo;</a>
+        </li>
+        <template repeat="{{n in currentRange}}">
+          <li class="{{currentpage === n ? 'active' : ''}}"
+              on-tap="{{selectPage}}" pageid="{{n}}">
+            <a>{{n}}
+              <template if="{{currentpage === n }}"><span class="sr-only">(*)</span></template>
+            </a>
+          </li>
+        </template>
+        <li class="{{ currentpage >= lastpage ? 'disabled' : '' }}"
+            on-tap="{{selectPage}}" pageid="next">
+          <a>&raquo;</a>
+        </li>
+        <li class="{{ currentpage >= lastpage ? 'disabled' : '' }}"
+            on-tap="{{selectPage}}" pageid="last">
+          <a>&vartriangleright;</a>
+        </li>
+      </ul>
+    </template>
+
+
+    <!--<paper-dropdown-menu  selected="20" valueattr="label">-->
+    <!--<paper-item label="10"></paper-item>-->
+    <!--<paper-item label="20"></paper-item>-->
+    <!--<paper-item label="50"></paper-item>-->
+    <!--<paper-item label="100"></paper-item>-->
+    <!--</paper-dropdown-menu>-->
+
+    <core-a11y-keys target="{{}}" keys="up down left right pagedown pageup"
+                    on-keys-pressed="{{arrowHandler}}"></core-a11y-keys>
+
+
   </template>
   <script>
-    Polymer({
-      /**
-       * The `author` attribute sets an initial author
-       *
-       * @attribute author
-       * @type string
-       * @default 'Dimitri Glazkov'
-       */
-      author: 'Dimitri Glazkov',
+    'use strict';
+    Polymer('tt-pagination', {
 
-      /**
-       * `fancy` is a property that does something fancy.
-       *
-       * @property fancy
-       * @type bool
-       * @default false
-       */
-      fancy: false,
-
+      firstpage: 1,
+      lastpage: 0,
+      currentpage: undefined,
+      created: function () {
+        this.currentRange = [];
+        this.total = 0;
+      },
       ready: function () {
-        // Ready is a lifecycle callback.
-        // You can do setup work in here.
-        // More info: http://www.polymer-project.org/docs/polymer/polymer.html#lifecyclemethods
+        // init
+        this.from = this.from || 0;
+        this.size = this.size || 10;
+        //   this.currentpage = this._computeCurrentPage(this.from, this.size);
+        this.range = this.range || 10;
+      },
+      arrowHandler: function (ev) {
+        console.log('°°°°°°°°°°°°°°°°°°°°°°°°° : ', ev.detail);
+      },
+      sizeChanged: function (oldValue, newValue, args) {
+        if (oldValue !== newValue) {
+          //console.log("Change Size : ", { 'oldValue': oldValue, 'newValue': newValue, "current": this.size });
+          // The from size need to be re calculate
+          this.currentpage = this._computeCurrentPage(this.from, newValue);
+          // compute
+          this.lastpage = this._computeLastPage();
+          // Fire Search Event
+          if (oldValue !== undefined) {
+            //console.log("°°°°°°°°°°°°°°°°°°°°°°°°° : Fire Event sizeChanged",oldValue);
+            this._firePagingChangeEvent();
+          }
+        }
+      },
+      fromChanged: function (oldValue, newValue, args) {
+        this.currentpage = this._computeCurrentPage(this.from, this.size);
+      },
+      selectPage: function (e, data, sender) {
+        var pageid = sender.getAttribute('pageid');
+        // console.log("select Page : ", pageid);
+        // verb control
+        switch (pageid) {
+          case 'next' :
+            pageid = '+1';
+            break;
+          case 'previous' :
+            pageid = '-1';
+            break;
+          case 'nextRange' :
+            pageid = '+' + this.range;
+            break;
+          case 'previousRange' :
+            pageid = '-' + this.range;
+            break;
+          case 'first' :
+            pageid = this.firstpage;
+            break;
+          case 'last' :
+            pageid = this.lastpage;
+            break;
+        }
+        // Do operation
+        if ((typeof pageid === 'string') && (pageid.indexOf('+') === 0)) {
+          var inc1 = parseInt(pageid.slice(1), 10);
+          //console.log('Select  page + ', inc, ' current ', this.currentpage, ' /this.lastpage , ', this.lastpage);
+          this.currentpage = Math.min(this.lastpage, this.currentpage + inc1);
+          //console.log('Select  page + ', inc, ' current ', this.currentpage);
+        } else if ((typeof pageid === 'string') && (pageid.indexOf('-') === 0)) {
+          var inc2 = parseInt(pageid.slice(1), 10);
+          this.currentpage = Math.max(this.firstpage, this.currentpage - inc2);
+        } else {
+          this.currentpage = Math.min(Math.max(parseInt(pageid, 10), this.firstpage), this.lastpage);
+        }
       },
 
-      /**
-       * The `sayHello` method will return a greeting.
-       *
-       * @method sayHello
-       * @param {String} greeting Pass in a specific greeting.
-       * @return {String} Returns a string greeting.
-       */
-      sayHello: function (greeting) {
-        var response = greeting || 'Hello World!';
-        return 'tt-paginator says, ' + response;
+
+      totalChanged: function (e, data, sender) {
+        this.lastpage = this._computeLastPage();
       },
 
-      /**
-       * The `tt-paginator-lasers-success` event is fired whenever we
-       * call fireLasers.
-       *
-       * @event tt-paginator-lasers-success
-       * @param {Object} detail
-       *   @param {string} detail.sound An amazing sound.
-       */
+      lastpageChanged: function () {
+        this.currentRange = this._computePageRange();
+      },
+      rangeChanged: function () {
+        this.currentRange = this._computePageRange();
+      },
+      currentpageChanged: function (oldValue, newValue, args) {
+        //console.log('Change current page', oldValue, ' --> ', newValue);
+        this.currentRange = this._computePageRange();
+        this.from = Math.max(0, (this.currentpage - 1) * this.size);
+        // Fire Search Event
+        if (oldValue !== undefined) {
+          // console.log('°°°°°°°°°°°°°°°°°°°°°°°°° : Fire Event currentPage',oldValue, ' --> ', newValue);
+          this._firePagingChangeEvent();
+        }
+      },
 
-      /**
-       * The `fireLasers` method will fire the lasers. At least
-       * it will dispatch an event that claims lasers were fired :)
-       *
-       * @method fireLasers
-       */
-      fireLasers: function () {
-        this.fire('tt-paginator-lasers-success', { sound: 'Pew pew pew!' });
+      _firePagingChangeEvent: function () {
+        this.fire('change', {
+          'from': this.from,
+          'size': this.size
+        });
+
+      },
+      _computePageRange: function () {
+        var paginations = [];
+        // Check currentpage in range
+        if (this.currentpage > this.lastpage) {
+          this.currentpage = Math.max(this.firstpage, this.lastpage);
+          return paginations;
+        }
+        // Rangeoo
+        var rangeMin, rangeMax;
+        if (this.range === -1) {
+          // Display all pages
+          rangeMin = this.firstpage;
+          rangeMax = this.lastpage;
+        } else {
+          // Display a range of pages
+          var rangeMiddle = Math.ceil(this.range / 2) - 1;
+          rangeMin = Math.max(1, this.currentpage - rangeMiddle);
+          rangeMax = Math.min(this.lastpage, rangeMin + this.range - 1);
+        }
+        // Compute range in case of reach end
+        if (rangeMax - rangeMin < this.range) {
+          rangeMin = Math.max(1, rangeMax - this.range + 1);
+        }
+        for (var i = rangeMin; i <= rangeMax; i++) {
+          paginations.push(i);
+        }
+
+        return paginations;
+      },
+
+      _computeLastPage: function () {
+        // return Math.ceil(this.total / this.size);
+        return this.size > 0 ? Math.max(1, Math.ceil(this.total / this.size)) : 0;
+      },
+      _computeCurrentPage: function (from, size) {
+        from = from || this.from;
+        size = size || this.size;
+        var nextCurrent = size > 0 ? Math.max(1, Math.floor(from / size) + 1) : 0;
+        //  console.log('compute current page :', nextCurrent);
+        return nextCurrent;
       }
+
+
+
+
     });
+
   </script>
+
+
 </polymer-element>

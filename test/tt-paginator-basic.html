@@ -14,29 +14,33 @@
 </head>
 <body>
 
-  <tt-paginator id="fixture"></tt-paginator>
+
+  <tt-pagination id="fixture" range="10"
+                 from="0" size="10"
+                 total="83646" >
+  </tt-pagination>
+
+
 
   <script>
     var myEl = document.getElementById('fixture');
 
     suite('<tt-paginator>', function() {
 
-      test('defines the "author" property', function() {
-        assert.equal(myEl.author, 'Dimitri Glazkov');
+      test('compute "lastpage" property', function() {
+        assert.equal(myEl.from, 0, 'configuration of from');
+        assert.equal(myEl.size, 10, 'configuration of size');
+        assert.equal(myEl.lastpage, 8365, 'compute of lastpage');
+        done();
       });
 
-      test('says hello', function() {
-        assert.equal(myEl.sayHello(), 'tt-paginator says, Hello World!');
-        var greetings = myEl.sayHello('greetings Earthlings');
-        assert.equal(greetings, 'tt-paginator says, greetings Earthlings');
-      });
 
-      test('fires lasers', function(done) {
-        myEl.addEventListener('tt-paginator-lasers-success', function(event) {
-          assert.equal(event.detail.sound, 'Pew pew pew!');
+      test('Change to Last Pages', function(done) {
+        myEl.addEventListener('change', function(event) {
+          assert.equal(event.detail.from, 8365);
           done();
         });
-        myEl.fireLasers();
+        myEl.setAttribute("currentpage", 8365);
       });
 
     });
