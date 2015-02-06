@@ -1,0 +1,34 @@
+{
+  "name": "tt-crud",
+  "version": "0.0.1",
+  "description": "Web Component ",
+  "main": "gulpfile.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tt-components/tt-crud.git"
+  },
+  "keywords": [
+    "crud"
+  ],
+  "author": "ttbox.eu@gmail.com",
+  "license": "AGPL",
+  "bugs": {
+    "url": "https://github.com/tt-components/tt-crud/issues"
+  },
+  "homepage": "https://github.com/tt-components/tt-crud",
+  "devDependencies": {
+    "gulp": "^3.8.10",
+    "gulp-clean": "^0.3.1",
+    "gulp-jshint": "^1.9.2",
+    "gulp-run-seq": "^1.2.2",
+    "gulp-vulcanize": "^5.0.0",
+    "jshint-stylish": "^1.0.0",
+    "web-component-tester": "^2.1.3"
+  }
+}
