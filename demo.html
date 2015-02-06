@@ -1,14 +1,52 @@
 <!doctype html>
 <html lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>tt-paginator Demo</title>
-    <script src="../webcomponentsjs/webcomponents.js"></script>
-    <link rel="import" href="tt-paginator.html">
-  </head>
-  <body unresolved>
-    <p>An `tt-paginator` looks like this:</p>
-    <tt-paginator></tt-paginator>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tt-paginator Demo</title>
+  <script src="../webcomponentsjs/webcomponents.js"></script>
+
+  <link rel="import" href="tt-paginator.html">
+
+  <link rel="import" href="../paper-input/paper-input.html">
+
+</head>
+<body unresolved>
+
+<polymer-element name="tt-paginator-demo">
+  <template>
+
+    <paper-input value="{{total}}"></paper-input>
+    <p>
+
+    <div>from : {{from}}</div>
+    </p>
+
+    <tt-paginator range="11"
+                  from="{{from}}" size="10"
+                  total="{{total}}">
+    </tt-paginator>
+
+
+  </template>
+
+  <script>
+    Polymer('tt-paginator-demo', {
+
+      from: 0,
+      range: 10,
+      total: 1000
+    });
+
+  </script>
+</polymer-element>
+
+</polymer-element>
+
+
+<p>An `tt-paginator` looks like this:</p>
+<tt-paginator-demo></tt-paginator-demo>
+
+
+</body>
 </html>

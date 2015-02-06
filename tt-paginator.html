@@ -117,10 +117,10 @@ Element providing solution to no problem in particular.
       },
       ready: function () {
         // init
-        this.from = this.from || 0;
-        this.size = this.size || 10;
+        this.from = parseInt(this.from, 10) || 0;
+        this.size = parseInt(this.size, 10) || 10;
         //   this.currentpage = this._computeCurrentPage(this.from, this.size);
-        this.range = this.range || 10;
+        this.range = parseInt(this.range, 10) || 10;
       },
       arrowHandler: function (ev) {
         console.log('°°°°°°°°°°°°°°°°°°°°°°°°° : ', ev.detail);
@@ -250,8 +250,6 @@ Element providing solution to no problem in particular.
         //  console.log('compute current page :', nextCurrent);
         return nextCurrent;
       }
-
-
 
 
     });
