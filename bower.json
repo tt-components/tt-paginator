@@ -15,7 +15,7 @@
   "devDependencies": {
     "webcomponentsjs": "Polymer/webcomponentsjs#^0.5.4",
     "web-component-tester": "Polymer/web-component-tester#^2.2.1"
-  }, 
+  },
   "ignoredDependencies": [
     "jquery"
   ]
